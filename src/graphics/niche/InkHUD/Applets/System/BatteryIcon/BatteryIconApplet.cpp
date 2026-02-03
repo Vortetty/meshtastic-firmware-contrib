@@ -31,8 +31,8 @@ int InkHUD::BatteryIconApplet::onPowerStatusUpdate(const meshtastic::Status *sta
 
     meshtastic::PowerStatus *powerStatus = (meshtastic::PowerStatus *)status;
 
-    // Get the new state of charge %, and round to the nearest 10%
-    uint8_t newSocRounded = ((powerStatus->getBatteryChargePercent() + 5) / 10) * 10;
+    // Get the new state of charge %, and round to the nearest 5%
+    uint8_t newSocRounded = ((powerStatus->getBatteryChargePercent() + 2) / 5) * 5;
 
     // If rounded value has changed, trigger a display update
     // It's okay to requestUpdate before we store the new value, as the update won't run until next loop()
