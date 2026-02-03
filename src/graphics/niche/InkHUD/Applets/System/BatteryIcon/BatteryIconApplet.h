@@ -32,6 +32,7 @@ class BatteryIconApplet : public SystemApplet
         CallbackObserver<BatteryIconApplet, const meshtastic::Status *>(this, &BatteryIconApplet::onPowerStatusUpdate);
 
     uint8_t socRounded = 0; // Battery state of charge, rounded to nearest 10%
+    uint32_t lastUpdate = 0; // Time we last updated
 };
 
 } // namespace NicheGraphics::InkHUD

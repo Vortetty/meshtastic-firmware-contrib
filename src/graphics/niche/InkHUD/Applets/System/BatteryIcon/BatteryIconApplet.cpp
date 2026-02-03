@@ -1,3 +1,4 @@
+#include "RTC.h"
 #ifdef MESHTASTIC_INCLUDE_INKHUD
 
 #include "./BatteryIconApplet.h"
@@ -31,14 +32,20 @@ int InkHUD::BatteryIconApplet::onPowerStatusUpdate(const meshtastic::Status *sta
 
     meshtastic::PowerStatus *powerStatus = (meshtastic::PowerStatus *)status;
 
-    // Get the new state of charge %, and round to the nearest 10%
-    uint8_t newSocRounded = ((powerStatus->getBatteryChargePercent() + 5) / 10) * 10;
+    // We don't actually round now, just don't display >100%
+    uint8_t newSocRounded = min(100, powerStatus->getBatteryChargePercent());
 
     // If rounded value has changed, trigger a display update
     // It's okay to requestUpdate before we store the new value, as the update won't run until next loop()
     // Don't trigger an update if the feature is disabled
-    if (this->socRounded != newSocRounded && settings->optionalFeatures.batteryIcon)
+    // E-ink screens tend to accumulate damage with rapid (<180s between) updates so only update every 5 minutes
+    // Rounding was used prior to time gating, however for large batteries this leads to slow updates, and on small batteries even a 5%
+    //  change can come incredibly quickly (such as an esp32 on a 1000mah), causing damage anyway.
+    const uint32_t curTime = getTime(true); // We don't care about the actual time, we just want a working time
+    constexpr uint32_t updateMinimumSeconds = 60 * 5; // 5 minutes
+    if (this->socRounded != newSocRounded && settings->optionalFeatures.batteryIcon && (curTime - lastUpdate) >= ) {
         requestUpdate();
+    }
 
     // Store the new value
     this->socRounded = newSocRounded;
